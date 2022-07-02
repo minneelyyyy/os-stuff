@@ -1,31 +1,51 @@
 
-mov ah, 0x0e
+; CODE
+
+[org 0x7c00]
+
+CODE_SEG equ GDT_code - GDT_Start
+DATA_SEG equ GDT_data - GDT_Start
+
+cli
+lgdt [GDT_Descriptor]
+mov eax, cr0
+or eax, 1
+mov cr0, eax
+jmp CODE_SEG:start_protected_mode
+
+; DATA
+
+GDT_Start:
+    GDT_null:
+        dd 0x0
+        dd 0x0
+
+    GDT_code:
+        dw 0xffff
+        dw 0x0
+        db 0x0
+        db 0b10011010
+        db 0b11001111
+        db 0x0
+
+    GDT_data:
+        dw 0xffff
+        dw 0x0
+        db 0x0
+        db 0b10010010
+        db 0b11001111
+        db 0x0
+GDT_End:
+
+GDT_Descriptor:
+    dw GDT_End - GDT_Start - 1
+    dd GDT_Start
+
+[bits 32]
+start_protected_mode:
 mov al, 'A'
-mov bl, 0
-
-loop:
-    int 0x10
-    inc al
-
-    mov cl, al
-
-    ; check if a character is uppercase or lowercase
-    ; A = 01000001
-    ; a = 01100001
-    and cl, 1 << 5
-    cmp cl, 0
-    je isupper
-    islower: ; xx1xxxxx -> xx0xxxxx
-    sub al, 1 << 5
-    jmp ifelseend
-    isupper: ; xx0xxxxx -> xx1xxxxx
-    add al, 1 << 5
-    ifelseend:
-
-    inc bl
-    cmp bl, 'Z' - 'A' ; add support in case letters get added or removed between A and Z
-    jle loop
-
+mov ah, 0x0f
+mov [0xb8000], ax
 jmp $
 
 times 510-($-$$) db 0
