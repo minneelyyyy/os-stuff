@@ -1,17 +1,9 @@
 
-CC=cc
+CC=i386-elf-gcc
 CFLAGS=
+LD=i386-elf-ld
+LDFLAGS=
 ASM=nasm
-ASMFLAGS=-fbin
+ASMFLAGS=
 
-BOOTSEC_SRC=src/bootsec.asm
-
-.PHONY: all clean
-
-all: bootsec.bin
-
-bootsec.bin: $(BOOTSEC_SRC)
-	$(ASM) $(ASMFLAGS) -o $@ $^
-
-clean:
-	rm -f bootsec.bin
+# TODO: make a dang makefile
